@@ -94,41 +94,51 @@ void output_average(double X[],int size_of_X, string text)
 
 int main()
 {
+    int continue_programm=1;
 
-    Plant plant;
-    plant_init(plant);
-
-    int k;
-    cout<<"Define k (number of channels) >> ";
-    cin>>k;
-
-    int N;
-    cout<<"Define N (Cycle number) >> ";
-    cin>>N;
-
-    double M[k];
-    input_channels(M, k);
-
-    double X[k][Const];
-    measure_X(M, X, k, N);
-    output_measure(X,k, N, "Measures of devices", "X");
-
-    double X_a[k];
-    average(X, k, N, X_a);
-    output_average(X_a, k, "Average values of measurements: ");
-
-    double covar[k*N][Const];
-
-    //Calculating covariations of all values
-    for (int i=0; i<k; i++)
+    do
     {
-        for (int j=0; j<N; j++)
-        {
-            covar[i][j]=covariation(X, X_a, i, j, N);
-        }
-    }
 
-    output_measure(covar, k*N, k*N, "Covariations:", "C");
+        Plant plant;
+        plant_init(plant);
+
+        int k;
+        cout<<"Define k (number of channels) >> ";
+        cin>>k;
+
+        int N;
+        cout<<"Define N (Cycle number) >> ";
+        cin>>N;
+
+        double M[k];
+        input_channels(M, k);
+
+        double X[k][Const];
+        measure_X(M, X, k, N);
+        output_measure(X,k, N, "Measures of devices:", "X");
+
+        double X_a[k];
+        average(X, k, N, X_a);
+        output_average(X_a, k, "Average values of measurements: ");
+
+        double covar[k][Const];
+
+        //Calculating covariations of all values
+        for (int i=0; i<k; i++)
+        {
+            for (int j=0; j<k; j++)
+            {
+                covar[i][j]=covariation(X, X_a, i, j, N);
+            }
+        }
+
+        output_measure(covar, k, k, "Covariations:", "C");
+
+        cout<<"\n Repeat??? (1-YES; Anything-NO) >> ";
+        cin>>continue_programm;
+
+    }
+    while (continue_programm==1);
 
     return 0;
 }
