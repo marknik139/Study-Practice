@@ -2,6 +2,8 @@
 #include "plant.h"
 #include <cmath>
 #include <string.h>
+#include <iomanip>
+
 using namespace std;
 
 #define Const 100
@@ -29,7 +31,6 @@ void measure_X(int M[],double X[][Const], int raws, int columns)
             X[i][j]=plant_measure(M[i], plant);
         }
     }
-
 }
 
 //Calculation the average of N values
@@ -62,54 +63,76 @@ double covariation(double X[][Const], double X_a[], int i, int j, int N)
     return temp;
 }
 
-void name(int ELEM)
+void table(int k, int M[])
 {
-    if (ELEM==1)
-        cout<<"Temperature";
-    if (ELEM==2)
-        cout<<"Pressure";
-    if (ELEM==3)
-        cout<<"Wetness";
-    if (ELEM==4 || ELEM==5 || ELEM==6)
-        cout<<"Discret";
+    int pointer=20;
+
+    cout<<setw(pointer)<<"N";
+
+    pointer=19;
+    for (int i=0; i<k; i++)
+    {
+        cout<<setw(pointer)<<"X"<<M[i];
+    }
 }
 
 //Output for 2-x matrix
-void output_measure(double X[][Const], int M[], int raws, int columns, string text, string text2)
+void output_measure(double X[][Const], int M[], int raws, int columns, string text)
 {
+    int pointer=20;
+
+    cout<<"\n"<<text<<"\n";
+    table(raws, M);
     cout<<"\n";
-    cout<<text<<"\n";
-    for (int i=0; i<raws; i++)
+
+    cout<<setprecision(4);
+
+    for (int i=0; i<columns; i++)
     {
-        cout<<M[i]<<") Measure \n";
-        name(M[i]);
-        cout<<"\n";
-        for (int j=0; j<columns; j++)
+        cout<<setw(pointer)<<i+1;
+        //cout<<M[i]<<") Measure \n";
+        //name(M[i]);
+        for (int j=0; j<raws; j++)
         {
-            if (text2=="C")
-            {
-                cout<<"\t"<<text2<<M[i]<<"="<<X[i][j]<<"\n";
-            }
-            else
-            {
-                cout<<"\t"<<text2<<"["<<M[i]<<"]["<<j+1<<"]="<<X[i][j]<<"\n";
-            }
+                cout<<setw(pointer)<<X[j][i];
         }
+            cout<<"\n";
     }
 }
 
 //Output for 1-x matrix
-void output_average(double X[],int M[], int size_of_X, string text)
+void output_average(double X[],int M[], int size_of_X)
 {
-    cout<<"\n";
-    cout<<text<<"\n";
+    int pointer=20;
+    cout<<setprecision(4);
 
+
+    cout<<setw(pointer)<<"Average";
     for (int i=0; i<size_of_X; i++)
     {
-        cout<<M[i]<<") Average measure of ";
-        name(M[i]);
-        cout<<"\t"<<"X="<<X[i];
-        cout<<"\n";
+        cout<<setw(pointer)<<X[i];
+    }
+    cout<<"\n";
+}
+
+void output_covar(double covar[][Const], int k, int M[])
+{
+    int pointer=15;
+    cout<<setprecision(4);
+
+    cout<<"\n\n\nCovariations:\n#############\n\n";
+
+    for (int i=0; i<k; i++)
+    {
+        for (int j=0; j<k; j++)
+        {
+            if (j<=i)
+            {
+                cout<<setw(pointer)<<"C["<<M[i]<<"]["<<M[j]<<"]=";
+                cout<<showpoint<<covar[j][i];
+            }
+        }
+            cout<<"\n";
     }
 }
 
@@ -119,9 +142,6 @@ int main()
 
     do
     {
-
-        Plant plant;
-        plant_init(plant);
 
         int k;
         cout<<"Define k (number of channels) >> ";
@@ -136,11 +156,11 @@ int main()
 
         double X[k][Const];
         measure_X(M, X, k, N);
-        output_measure(X,M, k,N, "Measures of devices:", "X");
+        output_measure(X,M, k,N, "Measures of devices:\n####################\n");
 
         double X_a[k];
         average(X, k, N, X_a);
-        output_average(X_a,M, k, "Average values of measurements: ");
+        output_average(X_a, M, k);
 
         double covar[k][Const];
 
@@ -153,7 +173,7 @@ int main()
             }
         }
 
-        output_measure(covar, M, k, k, "Covariations:", "C");
+        output_covar(covar, k, M);
 
         cout<<"\n Repeat??? (1-YES; Anything-NO) >> ";
         cin>>continue_programm;
