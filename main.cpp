@@ -1,12 +1,15 @@
-#include <iostream>
 #include "plant.h"
+
+#include <iostream>
 #include <cmath>
 #include <string.h>
 #include <iomanip>
+#include <discpp.h>
+
 
 using namespace std;
 
-#define Const 100
+#define Const 200
 
 //Input default values of channels
 void input_channels(int M[], int number_of_channels)
@@ -67,7 +70,7 @@ void table(int k, int M[])
 {
     int pointer=20;
 
-    cout<<setw(pointer)<<"N";
+    cout<<setw(pointer)<<"N*";
 
     pointer=19;
     for (int i=0; i<k; i++)
@@ -94,9 +97,9 @@ void output_measure(double X[][Const], int M[], int raws, int columns, string te
         //name(M[i]);
         for (int j=0; j<raws; j++)
         {
-                cout<<setw(pointer)<<X[j][i];
+            cout<<setw(pointer)<<X[j][i];
         }
-            cout<<"\n";
+        cout<<"\n";
     }
 }
 
@@ -132,9 +135,73 @@ void output_covar(double covar[][Const], int k, int M[])
                 cout<<showpoint<<covar[j][i];
             }
         }
-            cout<<"\n";
+        cout<<"\n";
     }
 }
+
+void research_average(double X[], int &number_device)
+{
+    Plant plant;
+    plant_init(plant);
+
+    cout<<"\nEnter number of device for research (1-6) >> ";
+    cin>>number_device;
+
+    for (int i=0, N=10; i<20; i++, N+=20)
+    {
+        X[i]=0;
+        for (int k=0; k<N; k++)
+        {
+            X[i]+=plant_measure(number_device, plant);
+        }
+        X[i]=X[i]/N;
+    }
+
+    cout<<"\n";
+    cout<<setw(15)<<"N*";
+    cout<<setw(15)<<"N";
+    cout<<setw(15)<<"X_average "<<number_device;
+    cout<<"\n";
+
+    int a=1;
+    int b=10;
+
+    for (int i=0; i<20; i++)
+    {
+        cout<<setw(15)<<a;
+        cout<<setw(15)<<b;
+        cout<<setw(15)<<X[i];
+        cout<<"\n";
+
+        a+=1;
+        b+=10;
+    }
+}
+
+/*void research_covar(int n1, int n2, int k)
+{
+    int M[k];
+    double covar[k][k];
+
+    for (int N=10; N<=200; N+=10)
+    {
+        for (int i=0; i<k; i++)
+        {
+
+            for (int j=0; j<k; j++)
+            {
+
+                double X[k][Const];
+                double X_a[k];
+                measure_X(M, X, k, N);
+                average(X, k, N, X_a);
+                covar[i][j]=covariation(X, X_a, i, j, N);
+                //cout<<"\t"<<covar[n2][n1];
+            }
+        }
+        cout<<"\t"<<covar[n2][n1];
+    }
+}*/
 
 int main()
 {
@@ -174,6 +241,60 @@ int main()
         }
 
         output_covar(covar, k, M);
+
+        cout<<"\n\nRESEARCH #\n##########  ";
+
+        int research;
+        cout<<"What to research??? (1-Average; 2-Covariation; Anything-Finish) >> ";
+        cin>>research;
+
+        if (research==1)
+        {
+            double A[20];
+            int number;
+            research_average(A, number);
+        }
+
+        if (research==2)
+        {
+            cout<<"Enter index_1 >> ";
+            int index_1;
+            cin>>index_1;
+            cout<<"Enter index_2 >> ";
+            int index_2;
+            cin>>index_2;
+
+            cout<<"\n";
+            cout<<setw(15)<<"N*";
+            cout<<setw(15)<<"N";
+            cout<<setw(15)<<"C["<<index_1<<"]["<<index_2<<"]";
+            cout<<"\n";
+
+            int a=1;
+            int b=10;
+
+            for (N=10; N<=200; N+=10)
+            {
+
+                measure_X(M, X, k, N);
+                average(X, k, N, X_a);
+                for (int i=0; i<k; i++)
+                {
+                    for (int j=0; j<k; j++)
+                    {
+                        covar[i][j]=covariation(X, X_a, i, j, N);
+                    }
+                }
+
+                cout<<setw(15)<<a;
+                cout<<setw(15)<<b;
+                cout<<setw(15)<<covar[index_1-1][index_2-1];
+                cout<<"\n";
+
+                a+=1;
+                b+=10;
+            }
+        }
 
         cout<<"\n Repeat??? (1-YES; Anything-NO) >> ";
         cin>>continue_programm;
